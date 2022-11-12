@@ -9,6 +9,8 @@ import (
 	"path"
 	"path/filepath"
 	"sync"
+
+	"migration-helper/pkg/utils"
 )
 
 type Image struct {
@@ -60,14 +62,21 @@ func (i *Image) FetchFromUrl() {
 }
 
 func FetchAll(images []Image) {
-	wg := sync.WaitGroup{}
-	for _, image := range images {
-		log.Println("Fething images by URL...", image.Src)
-		wg.Add(1)
-		go func(img Image) {
-			img.FetchFromUrl()
-			wg.Done()
-		}(image)
+	imagesByBatches := utils.ChunkBy(images, 150)
+	log.Println(fmt.Sprintf("Broke down image array into %v", len(imagesByBatches)))
+
+	for i, imageBatch := range imagesByBatches {
+		log.Println("Image batch -> ", i)
+		wg := sync.WaitGroup{}
+		for _, image := range imageBatch {
+			log.Println("Fething images by URL...", image.Src)
+			wg.Add(1)
+			go func(img Image) {
+				img.FetchFromUrl()
+				wg.Done()
+			}(image)
+		}
+		wg.Wait()
 	}
-	wg.Wait()
+
 }

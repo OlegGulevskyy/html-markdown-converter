@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"sync"
 
 	"migration-helper/pkg/utils"
@@ -38,13 +37,12 @@ func (i *Image) FetchFromUrl() {
 	}
 	defer res.Body.Close()
 
-	newpath := filepath.Join(".", i.DestinationPath)
-	err = os.MkdirAll(newpath, os.ModePerm)
+	err = os.MkdirAll(i.DestinationPath, os.ModePerm)
 	if err != nil {
 		log.Println("error making dirs", err)
 	}
 
-	file, err := os.Create(fmt.Sprintf("%s/%s", newpath, path.Base(i.Src)))
+	file, err := os.Create(fmt.Sprintf("%s/%s", i.DestinationPath, path.Base(i.Src)))
 
 	if err != nil {
 		log.Println("error", "cold not save file to the drive")

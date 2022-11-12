@@ -36,14 +36,14 @@ func getServiceAccountCreds() []byte {
 }
 
 type OperationRunStatus struct {
-	IsDone                         bool `json:"is_done"`
-	ImagesRequestedForProcessing   int  `json:"images_requested_for_processing"`
-	ArticlesRequestedForProcessing int  `json:"articles_requested_for_processing"`
-	TimeElapsed                    float64  `json:"time_elapsed"`
+	IsDone                         bool    `json:"is_done"`
+	ImagesRequestedForProcessing   int     `json:"images_requested_for_processing"`
+	ArticlesRequestedForProcessing int     `json:"articles_requested_for_processing"`
+	TimeElapsed                    float64 `json:"time_elapsed"`
 }
 
 // if run successfully - return positive bool
-func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRange string) OperationRunStatus {
+func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRange string, mdDestFolder string, imagesDestFolder string) OperationRunStatus {
 	start := time.Now()
 
 	creds := getServiceAccountCreds()
@@ -63,9 +63,9 @@ func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRa
 
 		sanitizedName := files.SanitizeFileName(fmt.Sprint(name))
 
-		res := converter.Convert(fmt.Sprint(html), sanitizedName)
+		res := converter.Convert(fmt.Sprint(html), sanitizedName, imagesDestFolder)
 
-		newpath := filepath.Join(".", "output")
+		newpath := filepath.Join(mdDestFolder, "output")
 		err := os.MkdirAll(newpath, os.ModePerm)
 		if err != nil {
 			log.Fatalf("failed to create folder: %v", err)
@@ -89,7 +89,7 @@ func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRa
 		IsDone:                         true,
 		ImagesRequestedForProcessing:   len(allImgs),
 		ArticlesRequestedForProcessing: len(htmlBodiesRows),
-		TimeElapsed: time.Since(start).Seconds(),
+		TimeElapsed:                    time.Since(start).Seconds(),
 	}
 }
 

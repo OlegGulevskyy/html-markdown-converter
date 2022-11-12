@@ -12,9 +12,9 @@ import { Modal } from "../../components/modal";
 import { SpinnerWhite } from "../../assets/svg/Spinner";
 
 const inputsDefState = {
-  spreadsheetId: "1FFK1zo901uI_ZwuOLFCf7GSBl2UEcb6MvelR3Y0Oeh4",
-  htmlBodyRange: "X2:X",
-  articleTitlesRange: "N2:N",
+  spreadsheetId: "",
+  htmlBodyRange: "",
+  articleTitlesRange: "",
   haveSharedSpreadsheet: "",
   destinationPath: "",
   imagesPath: "",
@@ -38,7 +38,13 @@ export function Home() {
   const runApp = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsTransforming(true);
-    Run(inputs.spreadsheetId, inputs.htmlBodyRange, inputs.articleTitlesRange)
+    Run(
+      inputs.spreadsheetId,
+      inputs.htmlBodyRange,
+      inputs.articleTitlesRange,
+      inputs.destinationPath,
+      inputs.imagesPath
+    )
       .then((transformData) => {
         setTransformationData(transformData);
         setTransformationDone(true);

@@ -16,7 +16,7 @@ type ConvertResult struct {
 	Images   []images.Image
 }
 
-func Convert(str string, articleName string) ConvertResult {
+func Convert(str string, articleName string, imagesDestination string) ConvertResult {
 	imgs := []images.Image{}
 
 	handleImagesRule := md.Rule{
@@ -28,8 +28,7 @@ func Convert(str string, articleName string) ConvertResult {
 			width, _ := selec.Attr("width")
 			height, _ := selec.Attr("height")
 
-			imgPath := filepath.Join(".", "_images")
-			destPath := filepath.Join(imgPath, articleName)
+			destPath := filepath.Join(imagesDestination, articleName)
 			imgName := filepath.Base(src)
 			importSrc := fmt.Sprintf("./%s/%s", destPath, imgName)
 

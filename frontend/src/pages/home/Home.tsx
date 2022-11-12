@@ -1,8 +1,15 @@
 import { useState } from "react";
-import { Run, FetchSpreadsheetInfo } from "../../../wailsjs/go/main/App";
+import {
+  Run,
+  FetchSpreadsheetInfo,
+  FolderPicker,
+} from "../../../wailsjs/go/main/App";
+import { main } from "../../../wailsjs/go/models";
 import { Input } from "../../components/input";
 
 import { Spinner, WarningTriangle, Check } from "../../assets/svg";
+import { Modal } from "../../components/modal";
+import { SpinnerWhite } from "../../assets/svg/Spinner";
 
 const inputsDefState = {
   spreadsheetId: "1FFK1zo901uI_ZwuOLFCf7GSBl2UEcb6MvelR3Y0Oeh4",
@@ -13,23 +20,38 @@ const inputsDefState = {
   imagesPath: "",
 };
 
+type Inputs = typeof inputsDefState;
+
 export function Home() {
   const [inputs, setInputs] = useState(inputsDefState);
   const [ssTitle, setSsTitle] = useState<string | null>("");
   const [isLoadingSsInfo, setIsLoadingSsInfo] = useState(false);
+  const [isTransforming, setIsTransforming] = useState(false);
+  const [transformationDone, setTransformationDone] = useState(false);
+  const [
+    transformationData,
+    setTransformationData,
+  ] = useState<main.OperationRunStatus | null>(null);
+
+  const resetAllFields = () => setInputs(inputsDefState);
 
   const runApp = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    Run(inputs.spreadsheetId, inputs.htmlBodyRange, inputs.articleTitlesRange);
+    setIsTransforming(true);
+    Run(inputs.spreadsheetId, inputs.htmlBodyRange, inputs.articleTitlesRange)
+      .then((transformData) => {
+        setTransformationData(transformData);
+        setTransformationDone(true);
+        setIsTransforming(false);
+      })
+      .catch((e) => console.log("Error transforming", e))
+      .finally(() => setIsTransforming(false));
   };
 
-  const onInput = (
-    key: keyof typeof inputsDefState,
-    e: React.FormEvent<HTMLInputElement>
-  ) => {
+  const onInput = (key: keyof Inputs, value: string) => {
     setInputs({
       ...inputs,
-      [key]: e.currentTarget.value,
+      [key]: value,
     });
   };
 
@@ -44,8 +66,20 @@ export function Home() {
       .finally(() => setIsLoadingSsInfo(false));
   };
 
+  const openFolderDialog = async (
+    key: keyof Pick<Inputs, "destinationPath" | "imagesPath">
+  ) => {
+    const result = await FolderPicker();
+    if (!result) return;
+
+    onInput(key, result);
+  };
+
   return (
     <div className="p-8 bg-slate-200">
+      {!isTransforming && transformationDone && (
+        <Modal transformationData={transformationData} />
+      )}
       <div className="bg-white p-6 rounded-md shadmw-md">
         <form className="space-y-8 divide-y divide-gray-200">
           <div className="space-y-8 divide-y divide-gray-200">
@@ -87,7 +121,10 @@ export function Home() {
                       id="spreadsheet-id"
                       value={inputs.spreadsheetId}
                       autoComplete="spreadsheet-id"
-                      onInput={(e) => onInput("spreadsheetId", e)}
+                      onInput={(e) =>
+                        onInput("spreadsheetId", e.currentTarget.value)
+                      }
+                      disabled={isTransforming}
                       onBlur={fetchSpreadsheetInfo}
                       className="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
@@ -120,12 +157,16 @@ export function Home() {
                     </p>
                   </div>
                 </div>
+
                 <div className="sm:col-span-3">
                   <Input
                     value={inputs.htmlBodyRange}
-                    onInput={(e) => onInput("htmlBodyRange", e)}
+                    onInput={(e) =>
+                      onInput("htmlBodyRange", e.currentTarget.value)
+                    }
                     label="HTML body range"
                     id="html-body-range"
+                    disabled={isTransforming}
                   />
                 </div>
 
@@ -133,8 +174,11 @@ export function Home() {
                   <Input
                     value={inputs.articleTitlesRange}
                     id="article-title-range"
-                    onInput={(e) => onInput("articleTitlesRange", e)}
+                    onInput={(e) =>
+                      onInput("articleTitlesRange", e.currentTarget.value)
+                    }
                     label="Article name range"
+                    disabled={isTransforming}
                   />
                 </div>
 
@@ -146,6 +190,7 @@ export function Home() {
                         name="comments"
                         type="checkbox"
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        disabled={isTransforming}
                       />
                     </div>
                     <div className="ml-3 text-sm">
@@ -179,39 +224,106 @@ export function Home() {
                 </p>
               </div>
               <div className="mt-6">
-                <Input
-                  value={inputs.destinationPath}
-                  onInput={(e) => onInput("destinationPath", e)}
-                  id="destination-path"
-                  label="Project folder"
-                />
-              </div>
-              <div className="mt-6">
-                <Input
-                  value={inputs.imagesPath}
-                  onInput={(e) => onInput("imagesPath", e)}
-                  id="image-path"
-                  label="Images folder"
-                />
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Destination project folder
+                  </label>
+                  <div className="mt-1 flex rounded-md shadow-sm">
+                    <button
+                      type="button"
+                      className="relative -ml-px inline-flex items-center space-x-2 rounded-l-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      onClick={() => openFolderDialog("destinationPath")}
+                      disabled={isTransforming}
+                    >
+                      <span>Select</span>
+                    </button>
+                    <div className="relative flex flex-grow items-stretch focus-within:z-10">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+                      <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        className="block w-full rounded-none rounded-r-md border-gray-300 pl-4 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="~/Desktop/my-project"
+                        value={inputs.destinationPath}
+                        onInput={(e) =>
+                          onInput("destinationPath", e.currentTarget.value)
+                        }
+                        disabled={isTransforming}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Images folder
+                  </label>
+                  <div className="mt-1 flex rounded-md shadow-sm">
+                    <button
+                      type="button"
+                      className="relative -ml-px inline-flex items-center space-x-2 rounded-l-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      onClick={() => openFolderDialog("imagesPath")}
+                      disabled={isTransforming}
+                    >
+                      <span>Select</span>
+                    </button>
+                    <div className="relative flex flex-grow items-stretch focus-within:z-10">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"></div>
+                      <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        className="block w-full rounded-none rounded-r-md border-gray-300 pl-4 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="~/Desktop/my-project/_images"
+                        value={inputs.imagesPath}
+                        onInput={(e) =>
+                          onInput("imagesPath", e.currentTarget.value)
+                        }
+                        disabled={isTransforming}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="pt-5">
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                Reset all fields
-              </button>
-              <button
-                type="submit"
-                className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={runApp}
-              >
-                Run transformation
-              </button>
+            <div className="flex justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Made with ❤️ by Oleg</p>
+                <p className="text-slate-400 text-sm">Powered by Wails</p>
+              </div>
+              <div className="">
+                <button
+                  type="button"
+                  className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  onClick={resetAllFields}
+                  disabled={isTransforming}
+                >
+                  Reset all fields
+                </button>
+                <button
+                  type="submit"
+                  className={`ml-3 inline-flex justify-center rounded-md border border-transparent ${
+                    !isTransforming ? "bg-indigo-600" : "bg-slate-500"
+                  } py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                  onClick={runApp}
+                  disabled={isTransforming}
+                >
+                  {isTransforming && (
+                    <SpinnerWhite className="animate-spin h-4 w-4 text-white inline-flex mr-2" />
+                  )}
+                  Run transformation
+                </button>
+              </div>
             </div>
           </div>
         </form>

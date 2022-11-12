@@ -39,10 +39,9 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-func (a *App) FolderPicker(name string) (string, error) {
-	ctx := context.Background()
+func (a *App) FolderPicker() (string, error) {
 	opts := runtime.OpenDialogOptions{}
-	path, err := runtime.OpenDirectoryDialog(ctx, opts)
+	path, err := runtime.OpenDirectoryDialog(a.ctx, opts)
 	if err != nil {
 		return "", err
 	}

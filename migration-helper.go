@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"migration-helper/pkg/converter"
 	"migration-helper/pkg/files"
@@ -34,7 +35,16 @@ func getServiceAccountCreds() []byte {
 	return c
 }
 
-func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRange string) {
+type OperationRunStatus struct {
+	IsDone                         bool `json:"is_done"`
+	ImagesRequestedForProcessing   int  `json:"images_requested_for_processing"`
+	ArticlesRequestedForProcessing int  `json:"articles_requested_for_processing"`
+	TimeElapsed                    float64  `json:"time_elapsed"`
+}
+
+// if run successfully - return positive bool
+func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRange string) OperationRunStatus {
+	start := time.Now()
 
 	creds := getServiceAccountCreds()
 
@@ -67,19 +77,20 @@ func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRa
 			finalMd = finalMd + fmt.Sprintf("import %s from \"%s\"\n", img.ImportName, img.ImportPath)
 		}
 		finalMd = finalMd + "\n\n" + res.Markdown
-
 		files.SaveStringAsFile(fileName, finalMd)
 
 		log.Println("SAVED FILE", fileName)
-
 		allImgs = append(allImgs, res.Images...)
 
 	}
-
 	images.FetchAll(allImgs)
 
-	log.Println("Done, merci, grous bisous!")
-
+	return OperationRunStatus{
+		IsDone:                         true,
+		ImagesRequestedForProcessing:   len(allImgs),
+		ArticlesRequestedForProcessing: len(htmlBodiesRows),
+		TimeElapsed: time.Since(start).Seconds(),
+	}
 }
 
 func (a *App) FetchSpreadsheetInfo(ssId string) (string, error) {

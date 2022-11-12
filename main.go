@@ -10,11 +10,11 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-//go:embed credentials.json
-var creds embed.FS
-
 //go:embed build/appicon.png
 var icon []byte
+
+//go:embed credentials.json
+var creds embed.FS
 
 func main() {
 	// Create an instance of the app structure

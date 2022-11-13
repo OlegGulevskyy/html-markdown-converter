@@ -30,7 +30,7 @@ func Convert(str string, articleName string, imagesDestination string) ConvertRe
 
 			destPath := filepath.Join(imagesDestination, articleName)
 			imgName := filepath.Base(src)
-			importSrc := fmt.Sprintf("./%s/%s", destPath, imgName)
+			importSrc := fmt.Sprintf("./%s/%s/%s", filepath.Base(imagesDestination), articleName, imgName)
 
 			// extract images for future processing (downloading)
 			finalImg := images.Image{

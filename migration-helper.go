@@ -42,7 +42,6 @@ type OperationRunStatus struct {
 	TimeElapsed                    float64 `json:"time_elapsed"`
 }
 
-// if run successfully - return positive bool
 func (a *App) Run(spreadsheetId string, htmlBodyRange string, articleNameSheetRange string, mdDestFolder string, imagesDestFolder string) OperationRunStatus {
 	start := time.Now()
 

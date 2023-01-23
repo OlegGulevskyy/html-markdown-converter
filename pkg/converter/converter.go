@@ -1,14 +1,10 @@
 package converter
 
 import (
-	"fmt"
 	"log"
-	"path/filepath"
-	"migration-helper/pkg/files"
 	"migration-helper/pkg/images"
 
 	md "github.com/JohannesKaufmann/html-to-markdown"
-	"github.com/PuerkitoBio/goquery"
 )
 
 type ConvertResult struct {
@@ -17,56 +13,10 @@ type ConvertResult struct {
 }
 
 func Convert(str string, categoryName string, imagesDestination string) ConvertResult {
+	// collection of all images to be used in Imports in the execution later
 	imgs := []images.Image{}
+	handleImagesRule := imagesRule(imagesDestination, categoryName, &imgs)
 
-	handleImagesRule := md.Rule{
-		Filter: []string{"img"},
-		Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
-			log.Println(content)
-			src, _ := selec.Attr("src")
-			alt, _ := selec.Attr("alt")
-			width, _ := selec.Attr("width")
-			height, _ := selec.Attr("height")
-
-			destPath := filepath.Join(imagesDestination, categoryName)
-			imgName := filepath.Base(src)
-			importSrc := fmt.Sprintf("./%s/%s/%s", filepath.Base(imagesDestination), categoryName, imgName)
-
-			// extract images for future processing (downloading)
-			finalImg := images.Image{
-				Src:             src,
-				Alt:             alt,
-				Width:           width,
-				Height:          height,
-				DestinationPath: destPath,
-				Name:            imgName,
-				ImportPath:      importSrc,
-				ImportName:      files.TransformToImportName(imgName),
-			}
-
-			imgs = append(imgs, finalImg)
-
-			var widthValue string
-			var heightValue string
-			if width == "" {
-				widthValue = images.WIDTH
-			}
-
-			if height == "" {
-				heightValue = images.HEIGHT
-			}
-
-			text := fmt.Sprintf(
-				"<img src={%s} alt=\"%s\" style={{ width: \"%spx\", height: \"%spx\" }} />",
-				finalImg.ImportName,
-				alt,
-				widthValue,
-				heightValue,
-			)
-
-			return &text
-		},
-	}
 	conv := md.NewConverter("", true, nil)
 
 	conv.AddRules(handleImagesRule)

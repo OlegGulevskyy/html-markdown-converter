@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	htmlIndex = 0
-	actualRangeIndex = 1
+	htmlIndex           = 0
+	actualRangeIndex    = 1
 	colNameIndexInRange = 0
 )
 
@@ -110,10 +110,13 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 		}
 
 		fileName := fmt.Sprintf("%s/%s.mdx", newpath, sanitizedName)
+
 		var finalMd string
-		for _, img := range res.Images {
-			finalMd = finalMd + fmt.Sprintf("import %s from \"%s\"\n", img.ImportName, img.ImportPath)
+		// if we have any images to be used in the article - add the import of useBaseUrl
+		if len(res.Images) > 0 {
+			finalMd = addUseBaseUrlImport(finalMd)
 		}
+
 		finalMd = finalMd + "\n\n" + res.Markdown
 		files.SaveStringAsFile(fileName, finalMd)
 
@@ -143,4 +146,14 @@ func (a *App) FetchSpreadsheetInfo(ssId string) (string, error) {
 
 func articlePath(basePath string, category string) string {
 	return filepath.Join(basePath, category)
+}
+
+func addFrontMatter(md string, title string) string {
+	return fmt.Sprintf(`---
+title: %s
+---`, title) + md
+}
+
+func addUseBaseUrlImport(md string) string {
+	return `import useBaseUrl from '@docusaurus/useBaseUrl';` + md
 }

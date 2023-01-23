@@ -2,7 +2,6 @@ package converter
 
 import (
 	"fmt"
-	"migration-helper/pkg/files"
 	"migration-helper/pkg/images"
 	"path/filepath"
 
@@ -32,7 +31,7 @@ func imagesRule(imagesDestination string, categoryName string, imgs *[]images.Im
 				DestinationPath: destPath,
 				Name:            imgName,
 				ImportPath:      importSrc,
-				ImportName:      files.TransformToImportName(imgName),
+				ImportName:      fmt.Sprintf("useBaseUrl(\"/%s/%s\")", categoryName, imgName),
 			}
 
 			*imgs = append(*imgs, finalImg)

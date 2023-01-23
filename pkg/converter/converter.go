@@ -16,10 +16,11 @@ func Convert(str string, categoryName string, imagesDestination string) ConvertR
 	// collection of all images to be used in Imports in the execution later
 	imgs := []images.Image{}
 	handleImagesRule := imagesRule(imagesDestination, categoryName, &imgs)
+	handleDivsWithHatClassRule := articleHatRule()
 
 	conv := md.NewConverter("", true, nil)
 
-	conv.AddRules(handleImagesRule)
+	conv.AddRules(handleImagesRule, handleDivsWithHatClassRule)
 
 	markdown, err := conv.ConvertString(str)
 	if err != nil {

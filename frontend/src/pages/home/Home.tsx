@@ -19,8 +19,8 @@ const inputsDefState = {
   htmlBodyRange: range("C2:C"),
   articleTitlesRange: range("B2:B"),
   categoryTitleRange: range("A2:A"),
-  destinationPath: "/Users/oleggulevskyy/Desktop/articles-results",
-  imagesPath: "/Users/oleggulevskyy/Desktop/articles-results/images/",
+  destinationPath: "/Users/oleggulevskyy/Documents/dev/at-docs",
+  imagesPath: "/Users/oleggulevskyy/Documents/dev/at-docs/static",
 };
 
 type Inputs = typeof inputsDefState;

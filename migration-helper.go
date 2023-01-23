@@ -112,6 +112,8 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 		fileName := fmt.Sprintf("%s/%s.mdx", newpath, sanitizedName)
 
 		var finalMd string
+		finalMd = addFrontMatter(finalMd, fmt.Sprint(name))
+
 		// if we have any images to be used in the article - add the import of useBaseUrl
 		if len(res.Images) > 0 {
 			finalMd = addUseBaseUrlImport(finalMd)
@@ -150,10 +152,10 @@ func articlePath(basePath string, category string) string {
 
 func addFrontMatter(md string, title string) string {
 	return fmt.Sprintf(`---
-title: %s
+title: "%s"
 ---`, title) + md
 }
 
 func addUseBaseUrlImport(md string) string {
-	return `import useBaseUrl from '@docusaurus/useBaseUrl';` + md
+	return md + "\nimport useBaseUrl from '@docusaurus/useBaseUrl';"
 }

@@ -36,25 +36,21 @@ func imagesRule(imagesDestination string, categoryName string, imgs *[]images.Im
 
 			*imgs = append(*imgs, finalImg)
 
-			var widthValue string
-			var heightValue string
-			if width == "" {
-				widthValue = images.WIDTH
+			element := fmt.Sprintf("<img src={%s}", finalImg.ImportName)
+			element = element + fmt.Sprintf(" alt=\"%s\"", alt)
+			if width != "" || height != "" {
+				element = element + "style={{"
+				if width != "" {
+					element = element + fmt.Sprintf("width: \"%spx\",", width)
+				}
+				if height != "" {
+					element = element + fmt.Sprintf("height: \"%spx\",", height)
+				}
+				element = element + " }}"
 			}
+			element = element + " />"
 
-			if height == "" {
-				heightValue = images.HEIGHT
-			}
-
-			text := fmt.Sprintf(
-				"<img src={%s} alt=\"%s\" style={{ width: \"%spx\", height: \"%spx\" }} />",
-				finalImg.ImportName,
-				alt,
-				widthValue,
-				heightValue,
-			)
-
-			return &text
+			return &element
 		},
 	}
 }

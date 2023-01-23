@@ -20,7 +20,7 @@ func Convert(str string, categoryName string, imagesDestination string) ConvertR
 	conv.AddRules(
 		imagesRule(imagesDestination, categoryName, &imgs),
 		alertsRules(),
-		// emsRule(),
+		copyToCbRule(),
 	)
 
 	markdown, err := conv.ConvertString(str)

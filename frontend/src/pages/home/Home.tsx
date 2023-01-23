@@ -19,7 +19,7 @@ const inputsDefState = {
   htmlBodyRange: range("C2:C"),
   articleTitlesRange: range("B2:B"),
   categoryTitleRange: range("A2:A"),
-  destinationPath: "/Users/oleggulevskyy/Documents/dev/at-docs",
+  destinationPath: "/Users/oleggulevskyy/Documents/dev/at-docs/docs",
   imagesPath: "/Users/oleggulevskyy/Documents/dev/at-docs/static",
 };
 

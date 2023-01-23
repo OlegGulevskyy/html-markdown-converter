@@ -94,7 +94,6 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 	var allImgs []images.Image
 
 	for i, row := range htmlBodiesRows {
-		log.Println("ROW I => ", i, "ROW => ", row)
 		html := row[htmlIndex]
 		name := titlesRows[i][htmlIndex]
 		categoryName := categoryRows[i][htmlIndex]

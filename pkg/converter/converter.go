@@ -15,12 +15,13 @@ type ConvertResult struct {
 func Convert(str string, categoryName string, imagesDestination string) ConvertResult {
 	// collection of all images to be used in Imports in the execution later
 	imgs := []images.Image{}
-	handleImagesRule := imagesRule(imagesDestination, categoryName, &imgs)
-	handleDivsWithHatClassRule := articleHatRule()
-
 	conv := md.NewConverter("", true, nil)
 
-	conv.AddRules(handleImagesRule, handleDivsWithHatClassRule)
+	conv.AddRules(
+		imagesRule(imagesDestination, categoryName, &imgs),
+		alertsRules(),
+		// emsRule(),
+	)
 
 	markdown, err := conv.ConvertString(str)
 	if err != nil {

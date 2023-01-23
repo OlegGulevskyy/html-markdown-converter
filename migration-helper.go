@@ -101,7 +101,7 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 
 		sanitizedName := files.SanitizeFileName(fmt.Sprint(name))
 
-		res := converter.Convert(fmt.Sprint(html), sanitizedName, rp.ImagesDestFolder)
+		res := converter.Convert(fmt.Sprint(html), fmt.Sprint(categoryName), rp.ImagesDestFolder)
 
 		newpath := articlePath(rp.MdDestFolder, fmt.Sprint(categoryName))
 		err := os.MkdirAll(newpath, os.ModePerm)

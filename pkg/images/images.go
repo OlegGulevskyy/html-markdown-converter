@@ -28,7 +28,7 @@ const (
 	HEIGHT = "200"
 )
 
-func (i *Image) FetchFromUrl() {
+func (i *Image) fetchFromUrl() {
 
 	res, err := http.Get(i.Src)
 	if err != nil {
@@ -70,7 +70,7 @@ func FetchAll(images []Image) {
 			log.Println("Fething images by URL...", image.Src)
 			wg.Add(1)
 			go func(img Image) {
-				img.FetchFromUrl()
+				img.fetchFromUrl()
 				wg.Done()
 			}(image)
 		}

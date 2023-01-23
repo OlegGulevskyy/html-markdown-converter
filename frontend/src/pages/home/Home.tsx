@@ -11,13 +11,16 @@ import { Spinner, WarningTriangle, Check } from "../../assets/svg";
 import { Modal } from "../../components/modal";
 import { SpinnerWhite } from "../../assets/svg/Spinner";
 
+const testSheetName = "Templates";
+const range = (a1Notation: string) => `${testSheetName}!${a1Notation}`;
+
 const inputsDefState = {
-  spreadsheetId: "",
-  htmlBodyRange: "",
-  articleTitlesRange: "",
-  haveSharedSpreadsheet: "",
-  destinationPath: "",
-  imagesPath: "",
+  spreadsheetId: "1OCbB2tYqcWt_qzfGo43CfFAPOGvA_iJCq3aGq1hUaRA",
+  htmlBodyRange: range("C2:C"),
+  articleTitlesRange: range("B2:B"),
+  categoryTitleRange: range("A2:A"),
+  destinationPath: "/Users/oleggulevskyy/Desktop/articles-results",
+  imagesPath: "/Users/oleggulevskyy/Desktop/articles-results/images/",
 };
 
 type Inputs = typeof inputsDefState;
@@ -38,13 +41,14 @@ export function Home() {
   const runApp = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsTransforming(true);
-    Run(
-      inputs.spreadsheetId,
-      inputs.htmlBodyRange,
-      inputs.articleTitlesRange,
-      inputs.destinationPath,
-      inputs.imagesPath
-    )
+    Run({
+      html_body_range: inputs.htmlBodyRange,
+      spreadsheet_id: inputs.spreadsheetId,
+      article_name_sheet_range: inputs.articleTitlesRange,
+      md_dest_folder: inputs.destinationPath,
+      category_name_sheet_range: inputs.categoryTitleRange,
+      images_dest_folder: inputs.imagesPath,
+    })
       .then((transformData) => {
         setTransformationData(transformData);
         setTransformationDone(true);
@@ -184,6 +188,18 @@ export function Home() {
                       onInput("articleTitlesRange", e.currentTarget.value)
                     }
                     label="Article name range"
+                    disabled={isTransforming}
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <Input
+                    value={inputs.categoryTitleRange}
+                    id="category-title-range"
+                    onInput={(e) =>
+                      onInput("categoryTitleRange", e.currentTarget.value)
+                    }
+                    label="Category name range"
                     disabled={isTransforming}
                   />
                 </div>

@@ -13,7 +13,7 @@ export const Input: FC<InputProps> = ({ onInput, label, value, id, disabled }) =
     <>
       {label && (
         <label
-          htmlFor="html-body-range"
+          htmlFor={id}
           className="block text-sm font-medium text-gray-700"
         >
           {label}

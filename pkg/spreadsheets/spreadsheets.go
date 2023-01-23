@@ -25,6 +25,16 @@ func newSpreadsheetService(creds []byte) *sheets.Service {
 	return srv
 }
 
+func GetSpreadsheetValuesBulk(ssId string, creds []byte, ranges []string) []*sheets.ValueRange {
+	srv := newSpreadsheetService(creds)
+	resp, err := srv.Spreadsheets.Values.BatchGet(ssId).Ranges(ranges...).Do()
+	if err != nil {
+		log.Fatalf("Unable to do bulk request to retrieve data from sheet: %v", err)
+	}
+
+	return resp.ValueRanges
+}
+
 func GetSpreadsheetValues(ssId string, sheetRange string, creds []byte) [][]interface{} {
 	srv := newSpreadsheetService(creds)
 	resp, err := srv.Spreadsheets.Values.Get(ssId, sheetRange).Do()

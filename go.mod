@@ -6,7 +6,7 @@ require (
 	github.com/JohannesKaufmann/html-to-markdown v1.3.6
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/manifoldco/promptui v0.9.0
-	github.com/wailsapp/wails/v2 v2.2.0
+	github.com/wailsapp/wails/v2 v2.3.1
 	google.golang.org/api v0.103.0
 )
 

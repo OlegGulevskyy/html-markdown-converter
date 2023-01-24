@@ -11,7 +11,7 @@ import { Spinner, WarningTriangle, Check } from "../../assets/svg";
 import { Modal } from "../../components/modal";
 import { SpinnerWhite } from "../../assets/svg/Spinner";
 
-const testSheetName = "Templates";
+const testSheetName = "Getting started";
 const range = (a1Notation: string) => `${testSheetName}!${a1Notation}`;
 
 const inputsDefState = {

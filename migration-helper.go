@@ -100,7 +100,7 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 
 		sanitizedName := files.SanitizeFileName(fmt.Sprint(name))
 
-		res := converter.Convert(fmt.Sprint(html), fmt.Sprint(categoryName), rp.ImagesDestFolder)
+		res := converter.Convert(fmt.Sprint(html), fmt.Sprint(categoryName), fmt.Sprint(name), rp.ImagesDestFolder)
 
 		newpath := articlePath(rp.MdDestFolder, fmt.Sprint(categoryName))
 		err := os.MkdirAll(newpath, os.ModePerm)
@@ -123,7 +123,6 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 
 		log.Println("SAVED FILE", fileName)
 		allImgs = append(allImgs, res.Images...)
-
 	}
 	images.FetchAll(allImgs)
 

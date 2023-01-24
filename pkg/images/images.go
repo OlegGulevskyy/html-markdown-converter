@@ -67,6 +67,12 @@ func FetchAll(images []Image) {
 		log.Println("Image batch -> ", i)
 		wg := sync.WaitGroup{}
 		for _, image := range imageBatch {
+
+			if image.Src == "" {
+				fmt.Println("Image src is empty", image)
+				continue
+			}
+
 			log.Println("Fething images by URL...", image.Src)
 			wg.Add(1)
 			go func(img Image) {

@@ -2,10 +2,12 @@ package converter
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
 	md "github.com/JohannesKaufmann/html-to-markdown"
+	plug "github.com/JohannesKaufmann/html-to-markdown/plugin"
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -47,25 +49,52 @@ func alertsRules() md.Rule {
 			}
 
 			if className == "alert alert-info" {
-				element := fmt.Sprintf(":::note\n%s\n:::", updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml)
+				element := fmt.Sprintf("\n:::note\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-warning" {
-				element := fmt.Sprintf(":::caution Warning\n%s\n:::", updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml)
+				element := fmt.Sprintf("\n:::caution Warning\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-danger" {
-				element := fmt.Sprintf(":::danger\n%s\n:::", updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml)
+				element := fmt.Sprintf("\n:::danger\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-success" {
-				element := updatedHtml
-				return &element
+				markdown := reconvertHtmlToMd(updatedHtml)
+				return &markdown
 			}
 			return nil
 		},
 	}
+}
+
+// running converter on the HTML that has been replaced
+// html-to-markdown lib will ignore it otherwise
+// but, ignore any images
+func reconvertHtmlToMd(htmlContent string) string {
+	conv := md.NewConverter("", true, nil)
+	conv.Use(plug.GitHubFlavored())
+
+	conv.AddRules(
+		alertsRules(),
+		copyToCbRule(),
+		escapingSoloTagsRules(),
+		tutoContainerRule(),
+		escapeSingleTagsRule(),
+		tabsRule(),
+	)
+
+	markdown, err := conv.ConvertString(htmlContent)
+	if err != nil {
+		log.Fatalf("Error with re-converter: %v", err)
+	}
+
+	return markdown
 }

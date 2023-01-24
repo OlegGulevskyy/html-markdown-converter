@@ -9,16 +9,20 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func imagesRule(imagesDestination string, categoryName string, imgs *[]images.Image) md.Rule {
+func imagesRule(imagesDestination string, categoryName string, articleName string, imgs *[]images.Image) md.Rule {
 	return md.Rule{
 		Filter: []string{"img"},
 		Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
-			src, _ := selec.Attr("src")
+			src, exists := selec.Attr("src")
+			if !exists {
+				return nil
+			}
+
 			alt, _ := selec.Attr("alt")
 			width, _ := selec.Attr("width")
 			height, _ := selec.Attr("height")
 
-			destPath := filepath.Join(imagesDestination, categoryName)
+			destPath := filepath.Join(imagesDestination, categoryName, articleName)
 			imgName := filepath.Base(src)
 			importSrc := fmt.Sprintf("./%s/%s/%s", filepath.Base(imagesDestination), categoryName, imgName)
 
@@ -31,7 +35,7 @@ func imagesRule(imagesDestination string, categoryName string, imgs *[]images.Im
 				DestinationPath: destPath,
 				Name:            imgName,
 				ImportPath:      importSrc,
-				ImportName:      fmt.Sprintf("useBaseUrl(\"/%s/%s\")", categoryName, imgName),
+				ImportName:      fmt.Sprintf("useBaseUrl(\"/%s/%s/%s\")", categoryName, articleName, imgName),
 			}
 
 			*imgs = append(*imgs, finalImg)

@@ -21,6 +21,7 @@ func Convert(str string, categoryName string, imagesDestination string) ConvertR
 		imagesRule(imagesDestination, categoryName, &imgs),
 		alertsRules(),
 		copyToCbRule(),
+		escapingSoloTagsRules(),
 	)
 
 	markdown, err := conv.ConvertString(str)

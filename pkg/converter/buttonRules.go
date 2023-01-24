@@ -19,6 +19,7 @@ func copyToCbRule() md.Rule {
 			if className == "copyButton" {
 				selec.SetHtml("")
 			}
+
 			updatedHtml, err := selec.Html()
 			updatedHtml = strings.TrimSpace(updatedHtml)
 			if err != nil {

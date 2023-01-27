@@ -99,8 +99,15 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 		categoryName := categoryRows[i][htmlIndex]
 
 		sanitizedName := files.SanitizeFileName(fmt.Sprint(name))
+		importsPerArticle := []string{}
 
-		res := converter.Convert(fmt.Sprint(html), fmt.Sprint(categoryName), fmt.Sprint(name), rp.ImagesDestFolder)
+		res := converter.Convert(
+			fmt.Sprint(html),
+			fmt.Sprint(categoryName),
+			fmt.Sprint(name), 
+			rp.ImagesDestFolder,
+			&importsPerArticle,
+		)
 
 		newpath := articlePath(rp.MdDestFolder, fmt.Sprint(categoryName))
 		err := os.MkdirAll(newpath, os.ModePerm)
@@ -110,14 +117,26 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 
 		fileName := fmt.Sprintf("%s/%s.mdx", newpath, sanitizedName)
 
-		var finalMd string
-		finalMd = addFrontMatter(finalMd, fmt.Sprint(name))
-
-		// if we have any images to be used in the article - add the import of useBaseUrl
 		if len(res.Images) > 0 {
-			finalMd = addUseBaseUrlImport(finalMd)
+			importsPerArticle = append(importsPerArticle, "import useBaseUrl from '@docusaurus/useBaseUrl';")
 		}
 
+		// construct the article .mdx
+		var finalMd string
+
+		// first - prepend all the article imports
+		for _, imp := range importsPerArticle {
+			finalMd = finalMd + fmt.Sprintf("%s\n", imp)
+		}
+
+		// add frontmatter such as 
+		// ---
+		// title: "Name of the article"
+		// ---
+		finalMd = addFrontMatter(finalMd, fmt.Sprint(name))
+
+
+		// add the actual article content in md format
 		finalMd = finalMd + "\n\n" + res.Markdown
 		files.SaveStringAsFile(fileName, finalMd)
 
@@ -151,7 +170,8 @@ func articlePath(basePath string, category string) string {
 func addFrontMatter(md string, title string) string {
 	return fmt.Sprintf(`---
 title: "%s"
----`, title) + md
+---
+`, title) + md
 }
 
 func addUseBaseUrlImport(md string) string {

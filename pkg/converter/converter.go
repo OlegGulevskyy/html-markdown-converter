@@ -13,7 +13,7 @@ type ConvertResult struct {
 	Images   []images.Image
 }
 
-func Convert(str string, categoryName string, articleName string, imagesDestination string) ConvertResult {
+func Convert(str string, categoryName string, articleName string, imagesDestination string, articleImports *[]string) ConvertResult {
 	// collection of all images to be used in Imports in the execution later
 	imgs := []images.Image{}
 	conv := md.NewConverter("", true, nil)
@@ -21,12 +21,12 @@ func Convert(str string, categoryName string, articleName string, imagesDestinat
 
 	conv.AddRules(
 		imagesRule(imagesDestination, categoryName, articleName, &imgs),
-		alertsRules(),
+		alertsRules(articleImports),
 		copyToCbRule(),
 		escapingSoloTagsRules(),
 		tutoContainerRule(),
 		escapeSingleTagsRule(),
-		tabsRule(),
+		tabsRule(articleImports),
 	)
 
 	markdown, err := conv.ConvertString(str)

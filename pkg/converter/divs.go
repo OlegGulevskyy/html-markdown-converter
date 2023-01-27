@@ -11,7 +11,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func alertsRules() md.Rule {
+func alertsRules(articleImports *[]string) md.Rule {
 	return md.Rule{
 		Filter: []string{"div"},
 		Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
@@ -49,25 +49,25 @@ func alertsRules() md.Rule {
 			}
 
 			if className == "alert alert-info" {
-				markdown := reconvertHtmlToMd(updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml, articleImports)
 				element := fmt.Sprintf("\n:::note\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-warning" {
-				markdown := reconvertHtmlToMd(updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml, articleImports)
 				element := fmt.Sprintf("\n:::caution Warning\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-danger" {
-				markdown := reconvertHtmlToMd(updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml, articleImports)
 				element := fmt.Sprintf("\n:::danger\n%s\n:::", markdown)
 				return &element
 			}
 
 			if className == "alert alert-success" {
-				markdown := reconvertHtmlToMd(updatedHtml)
+				markdown := reconvertHtmlToMd(updatedHtml, articleImports)
 				return &markdown
 			}
 			return nil
@@ -78,17 +78,17 @@ func alertsRules() md.Rule {
 // running converter on the HTML that has been replaced
 // html-to-markdown lib will ignore it otherwise
 // but, ignore any images
-func reconvertHtmlToMd(htmlContent string) string {
+func reconvertHtmlToMd(htmlContent string, articleImports *[]string) string {
 	conv := md.NewConverter("", true, nil)
 	conv.Use(plug.GitHubFlavored())
 
 	conv.AddRules(
-		alertsRules(),
+		alertsRules(articleImports),
 		copyToCbRule(),
 		escapingSoloTagsRules(),
 		tutoContainerRule(),
 		escapeSingleTagsRule(),
-		tabsRule(),
+		tabsRule(articleImports),
 	)
 
 	markdown, err := conv.ConvertString(htmlContent)

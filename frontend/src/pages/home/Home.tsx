@@ -13,14 +13,22 @@ import { SpinnerWhite } from "../../assets/svg/Spinner";
 
 const testSheetName = "Templates";
 const range = (a1Notation: string) => `${testSheetName}!${a1Notation}`;
-
-const inputsDefState = {
+const inputsTestState = {
   spreadsheetId: "1OCbB2tYqcWt_qzfGo43CfFAPOGvA_iJCq3aGq1hUaRA",
   htmlBodyRange: range("C2:C"),
   articleTitlesRange: range("B2:B"),
   categoryTitleRange: range("A2:A"),
   destinationPath: "/Users/oleggulevskyy/Documents/dev/at-docs/docs",
   imagesPath: "/Users/oleggulevskyy/Documents/dev/at-docs/static",
+};
+
+const inputsDefState = {
+  spreadsheetId: "",
+  htmlBodyRange: "",
+  articleTitlesRange: "",
+  categoryTitleRange: "",
+  destinationPath: "",
+  imagesPath: "",
 };
 
 type Inputs = typeof inputsDefState;

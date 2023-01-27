@@ -27,6 +27,7 @@ func Convert(str string, categoryName string, articleName string, imagesDestinat
 		tutoContainerRule(),
 		escapeSingleTagsRule(),
 		tabsRule(articleImports),
+		iframeRule(),
 	)
 
 	markdown, err := conv.ConvertString(str)

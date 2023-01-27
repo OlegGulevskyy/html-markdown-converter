@@ -11,7 +11,6 @@ func iframeRule() md.Rule {
 	return md.Rule{
 		Filter: []string{"div"},
 		Replacement: func(content string, selec *goquery.Selection, opt *md.Options) *string {
-			fmt.Println("Iframe rule", content)
 			dataType, exists := selec.Attr("data-type")
 			if !exists {
 				return nil

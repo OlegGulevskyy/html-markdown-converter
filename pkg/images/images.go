@@ -59,21 +59,25 @@ func (i *Image) fetchFromUrl() {
 	fmt.Println("Success!")
 }
 
-func FetchAll(images []Image) {
+func FetchAll(images []Image) int {
+	alreadyFetched := map[string]bool{}
 	imagesByBatches := utils.ChunkBy(images, 150)
-	log.Println(fmt.Sprintf("Broke down image array into %v", len(imagesByBatches)))
 
-	for i, imageBatch := range imagesByBatches {
-		log.Println("Image batch -> ", i)
+	for _, imageBatch := range imagesByBatches {
 		wg := sync.WaitGroup{}
 		for _, image := range imageBatch {
 
 			if image.Src == "" {
-				fmt.Println("Image src is empty", image)
+				continue
+			}
+
+			if alreadyFetched[image.Src] {
 				continue
 			}
 
 			log.Println("Fething images by URL...", image.Src)
+			alreadyFetched[image.Src] = true
+			
 			wg.Add(1)
 			go func(img Image) {
 				img.fetchFromUrl()
@@ -83,4 +87,5 @@ func FetchAll(images []Image) {
 		wg.Wait()
 	}
 
+	return len(alreadyFetched)
 }

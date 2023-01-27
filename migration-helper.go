@@ -104,7 +104,7 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 		res := converter.Convert(
 			fmt.Sprint(html),
 			fmt.Sprint(categoryName),
-			fmt.Sprint(name), 
+			fmt.Sprint(name),
 			rp.ImagesDestFolder,
 			&importsPerArticle,
 		)
@@ -129,25 +129,26 @@ func (a *App) Run(rp RunProps) OperationRunStatus {
 			finalMd = finalMd + fmt.Sprintf("%s\n", imp)
 		}
 
-		// add frontmatter such as 
+		// add frontmatter such as
 		// ---
 		// title: "Name of the article"
 		// ---
 		finalMd = addFrontMatter(finalMd, fmt.Sprint(name))
-
 
 		// add the actual article content in md format
 		finalMd = finalMd + "\n\n" + res.Markdown
 		files.SaveStringAsFile(fileName, finalMd)
 
 		log.Println("SAVED FILE", fileName)
+		fmt.Println("Retrieve images for article", len(res.Images))
+
 		allImgs = append(allImgs, res.Images...)
 	}
-	images.FetchAll(allImgs)
+	fetchedImages := images.FetchAll(allImgs)
 
 	return OperationRunStatus{
 		IsDone:                         true,
-		ImagesRequestedForProcessing:   len(allImgs),
+		ImagesRequestedForProcessing:   fetchedImages,
 		ArticlesRequestedForProcessing: len(htmlBodiesRows),
 		TimeElapsed:                    time.Since(start).Seconds(),
 	}
